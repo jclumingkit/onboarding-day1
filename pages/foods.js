@@ -1,4 +1,4 @@
-export const FoodList = [
+const foodList = [
   {
     id: 0,
     name: "Chicken Adobo",
@@ -48,3 +48,5 @@ export const FoodList = [
     rating: 5,
   },
 ];
+
+export default foodList;
