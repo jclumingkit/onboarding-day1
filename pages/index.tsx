@@ -1,25 +1,44 @@
 import styles from "../styles/Home.module.css";
-import { loadFoods } from "../lib/load-foods";
 
-import React, { useState } from "react";
-import type { GetServerSideProps, NextPage } from "next";
+import React, { useCallback, useState } from "react";
+import { NextPage } from "next";
 import Head from "next/head";
-
+import FoodList from "../data/foods.json";
 import FoodCard from "../components/FoodCard";
 import { Food } from "../types/foodType";
 
-export const getServerSideProps: GetServerSideProps = async () => {
-  const foodData = await loadFoods();
-
-  return {
-    props: {
-      foodData,
-    },
-  };
-};
-
-const Home: NextPage<{ foodData: Food[] }> = ({ foodData }) => {
+const Home: NextPage = () => {
   const [userQuery, setUserQuery] = useState("");
+  const [renderedFood, setRenderedFood] = useState([...FoodList]);
+  const [toggleSortButton, setToggleSortButton] = useState(false);
+
+  const handleSearchRenderedFood = useCallback(() => {
+    const searchResults = renderedFood.filter((foodItem: Food) =>
+      foodItem.name.toLowerCase().includes(userQuery.toLowerCase())
+    );
+
+    return searchResults;
+  }, [userQuery, renderedFood]);
+
+  const handleSortRenderedFood = () => {
+    if (toggleSortButton) {
+      const sortedLowToHighRating = renderedFood.sort(
+        (foodItemA, foodItemB) => {
+          return foodItemA.rating - foodItemB.rating;
+        }
+      );
+
+      setRenderedFood(sortedLowToHighRating);
+    } else {
+      const sortedHighToLow = renderedFood.sort((foodItemA, foodItemB) => {
+        return foodItemB.rating - foodItemA.rating;
+      });
+
+      setRenderedFood(sortedHighToLow);
+    }
+
+    setToggleSortButton(!toggleSortButton);
+  };
 
   return (
     <div className={styles.container}>
@@ -30,19 +49,19 @@ const Home: NextPage<{ foodData: Food[] }> = ({ foodData }) => {
       </Head>
 
       <main className={styles.main}>
+        <button type="button" onClick={() => handleSortRenderedFood()}>
+          Rating {toggleSortButton ? "↓" : "↑"}
+        </button>
         <input
           type="text"
           value={userQuery}
           onChange={(e) => setUserQuery(e.target.value)}
+          placeholder="Search food here..."
         />
         <div className={styles.section}>
-          {foodData
-            .filter((food) =>
-              food.name.toLowerCase().includes(userQuery.toLowerCase())
-            )
-            .map((food) => {
-              return <FoodCard food={food} key={food.id} />;
-            })}
+          {handleSearchRenderedFood().map((foodItem) => (
+            <FoodCard key={foodItem.id} food={foodItem} />
+          ))}
         </div>
       </main>
     </div>
