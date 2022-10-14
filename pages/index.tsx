@@ -8,7 +8,6 @@ import FoodCard from "../components/FoodCard";
 
 const Home: NextPage = () => {
   const [userQuery, setUserQuery] = useState("");
-  // const [renderedFood, setRenderedFood] = useState([...FoodList]);
   const [toggleSortButton, setToggleSortButton] = useState(true);
 
   const renderedFood = useMemo(() => {
@@ -22,7 +21,6 @@ const Home: NextPage = () => {
         return FoodItemA.rating - FoodItemB.rating;
       }
     });
-
     return sortedResults;
   }, [userQuery, toggleSortButton]);
 
